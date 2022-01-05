@@ -1,26 +1,16 @@
 require('dotenv').config()
 const { getMetadata } = require("./src/controller/ffprobe");
-import { nanoid } from "nanoid";
 import { fetchMetadata, saveMetadata } from "./src/controller/redis";
 import { Queue, Worker } from 'bullmq'
-
-
-// import IORedis from 'ioredis';
-
-// const connection = new IORedis(`redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_ADDRESS}/`);
-
-// const metaWorker = new Worker(process.env.QUEUE_NAME, async (job) => {
-//     console.log(job.data);
-
-// }, { connection });
+import { Response } from "./src/types";
 
 
 const metaWorker = new Worker(process.env.QUEUE_NAME, async (job) => {
     console.log(job.data);
     getMetadata(job.data.url).then(metadata => {
-        let payload = {
+        let payload: Response = {
             ...job.data,
-            metadata
+            result: metadata
         }
         saveMetadata(payload.uuid, payload)
     }).catch(err => {
@@ -38,21 +28,29 @@ const metaWorker = new Worker(process.env.QUEUE_NAME, async (job) => {
 });
 
 metaWorker.on('completed', (job) => {
-    console.log(`${job.id} has completed!`);
+    console.log(`${job.id}:${job.data.uuid} has completed!`);
+
+    setTimeout(() => {
+
+        fetchMetadata(job.data.uuid).then(data => {
+            console.log(data);
+        }).catch(err => {
+            console.log('Not found!');
+        })
+    }, 5000);
 });
 
 metaWorker.on('failed', (job, err) => {
     console.log(`${job.id} has failed with ${err.message}`);
 });
 
-// let payload: any = {
-//     url: "https://vibesmediastorage.s3.amazonaws.com/uploads/61d05316d5d1d2000f61f2d0.mp3",
-//     type: "meta",
-//     uuid: nanoid()
-// }
 
 
+// fetchMetadata("Cd7qTmo-QAUIvt6CDZgST").then(data => {
+//     console.log(data.metadata);
+// }).catch(err => {
+//     console.log('Not found!');
 
-
+// })
 
 

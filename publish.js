@@ -21,11 +21,11 @@ async function addJobs() {
     setInterval(async () => {
 
         await myQueue.add('meta', {
-            url: `http://api.alquran.cloud/v1/ayah/${2}:${getRandomArbitrary(1, 283)}`,
+            url: `https://verse.mp3quran.net/arabic/sahl_yassin/64/00${2}${parseInt(getRandomArbitrary(100, 283))}2211.mp3`,
             type: "meta",
             uuid: nanoid()
         })
-    }, 8000);
+    }, 10000);
 }
 
 addJobs().then((x) => {

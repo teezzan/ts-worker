@@ -3,7 +3,7 @@ import { Payload, Response } from '../types'
 
 
 const client = createClient({
-    url: process.env.REDIS_QUEUE_URI,
+    url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_ADDRESS}`,
     database: 0,
 });
 
@@ -31,15 +31,15 @@ let saveMetadata = async (uuid: string, payload: Response): Promise<boolean> => 
     })
 }
 
-let fetchMetadata = async (uuid: string): Promise<Response | string> => {
+let fetchMetadata = async (uuid: string): Promise<Response> => {
 
-    return new Promise<Response | string>(async (resolve, reject) => {
+    return new Promise<Response>(async (resolve, reject) => {
         client.get(uuid).then((metadata) => {
-            resolve(metadata)
+            resolve(JSON.parse(metadata))
 
         }).catch((err) => {
             console.log(err);
-            reject("false")
+            reject({})
         })
     })
 }
