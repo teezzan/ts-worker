@@ -7,7 +7,7 @@ type Response = {
     url: string
     type: string
     uuid: string
-    result: string
+    result: any
 }
 
 export {Payload, Response}
